@@ -1,0 +1,97 @@
+{
+  "project_name": "OrgLens ",,
+  "Description": "OrgLens is an internal tool that ingests data from organizational workflows (GitHub, Jira, PDFs, etc.) to build a dynamic Organization Knowledge Graph. It solves the 'Who do I ask?' problem by identifying subject-matter experts based on their actual work. It also features an AI Twin capability, allowing users to chat with a simulated version of an expert powered by Anthropic’s Claude API using historical context only.",
+  "core_features": [
+    "Multi-source data ingestion: Fetch and process data from GitHub (commits, issues), and internal documents.",
+    "Expert Discovery Engine: Natural language search (e.g., 'Who knows about layer normalization?') returning the most relevant team member.",
+    "Dynamic User Profiles: Automatically generated summaries of skills, recent contributions, and project history.",
+    "AI Twin Chat: A Retrieval-Augmented Generation (RAG) based chat interface powered by Claude 3 to mimic specific employee knowledge bases.",
+    "Voice Interaction (optional): Speech-to-text and text-to-speech interface for natural conversation with AI Twin."
+  ],
+  "architecture_stack": {
+    "backend": {
+      "language": "Python 3.11+",
+      "framework": "FastAPI",
+      "llm_integration": "Anthropic Claude 3 / 3.5 (Sonnet or Opus)",
+      "orchestration": ["LangChain", "LlamaIndex"]
+    },
+    "storage": {
+      "vector_database": ["ChromaDB", "Pinecone"],
+      "graph_or_relational_database": ["Neo4j (preferred)", "PostgreSQL (simplified relationships)"]
+    },
+    "frontend": {
+      "framework": ["Next.js (React)", "Streamlit (for fast prototyping)"],
+      "styling": "Tailwind CSS"
+    },
+    "audio_optional": {
+      "services": ["Play.ht", "ElevenLabs", "OpenAI Whisper/TTS"]
+    }
+  },
+  "data_model_and_pipeline": {
+    "entities": {
+      "Person": ["id", "name", "role", "email"],
+      "Artifact": ["id", "type (commit|issue|pdf|jira_task)", "content", "summary (Claude-generated)", "created_at"],
+      "Relationships": [
+        "Person --AUTHORED--> Artifact",
+        "Person --RESOLVED--> Artifact",
+        "Person --MENTIONED_IN--> Artifact"
+      ]
+    },
+    "ingestion_pipeline_flow": [
+      "Fetcher: Pull raw data (git log -p, Jira API, etc.)",
+      "Summarizer (Claude): Analyze diffs/text and generate summaries (technical intent, technologies used, rationale)",
+      "Vectorization: Embed summaries and raw content",
+      "Graph Linking: Create connections between Person and Artifact entities"
+    ],
+    "summarizer_prompt": "Analyze this git commit diff. Summarize the technical changes, identify the key technologies used, and explain the intent."
+  },
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/ingest/github",
+      "input": { "repo_url": "string", "branch": "string" },
+      "action": "Clone the repository, iterate through commit history, summarize using Claude, and store results in the database.",
+      "output": { "ingested_commits": "int", "status": "ok|error" }
+    },
+    {
+      "method": "POST",
+      "path": "/search/expert",
+      "input": { "query": "string" },
+      "logic": [
+        "Embed the query for semantic search.",
+        "Perform hybrid search (vector + graph traversal) to locate matching artifacts.",
+        "Aggregate and rank associated Person entities based on recency and frequency of contributions."
+      ],
+      "output": [
+        {
+          "person_id": "string",
+          "name": "string",
+          "score": "float",
+          "relevance_reason": "e.g., 'Authored 5 commits regarding RMSNorm'",
+          "evidence_artifacts": ["artifact_id_1", "artifact_id_2"]
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/chat/twin/{person_id}",
+      "input": { "message": "string" },
+      "logic": [
+        "Retrieve all artifacts linked to the given person_id.",
+        "Construct a Claude system prompt using that context.",
+        "Call the Claude Messages API to generate a context-specific answer."
+      ],
+      "output": { "response": "string" }
+    }
+  ],
+  "prompt_engineering": {
+    "expert_finder_prompt": {
+      "system_prompt": "You are an expert-finding assistant. Your role is to analyze a collection of employee contributions (git commits, Jira tickets) and determine the most qualified person to answer a user's question.\n\nUser's question: '{_
+
+  "acceptance_criteria": [
+    "The system can successfully ingest commits and generate summaries using Claude.",
+    "Expert search returns at least one relevant employee with reasoning.",
+    "AI Twin refuses to answer if context is missing, maintaining transparency."
+  ],
+  "notes": "For MVP: use small sample data and local JSON/SQLite before scaling to live GitHub/Jira integrations and vector/graph databases."
+}
