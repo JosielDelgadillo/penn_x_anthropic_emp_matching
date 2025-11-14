@@ -1,0 +1,360 @@
+{
+    "projects": [
+        {
+            "project_name": "OrgLens",
+            "Description": "OrgLens is an internal tool that builds an organizational knowledge graph by ingesting GitHub, Jira, and document data, enabling expert discovery and AI Twin chat.",
+            "core_features": [
+                "Multi-source data ingestion (GitHub, Jira, internal docs)",
+                "Expert Discovery Engine for semantic SME search",
+                "Dynamic user profile generation",
+                "AI Twin chat using Claude with RAG",
+                "Optional voice interaction layer"
+            ],
+            "architecture_stack": {
+                "backend": {
+                    "language": "Python 3.11+",
+                    "framework": "FastAPI",
+                    "llm_integration": "Anthropic Claude 3",
+                    "orchestration": [
+                        "LangChain",
+                        "LlamaIndex"
+                    ]
+                },
+                "storage": {
+                    "vector_database": [
+                        "ChromaDB",
+                        "Pinecone"
+                    ],
+                    "graph_or_relational_database": [
+                        "Neo4j",
+                        "PostgreSQL"
+                    ]
+                },
+                "frontend": {
+                    "framework": [
+                        "Next.js",
+                        "Streamlit"
+                    ],
+                    "styling": "Tailwind CSS"
+                },
+                "audio_optional": {
+                    "services": [
+                        "ElevenLabs",
+                        "OpenAI Whisper"
+                    ]
+                }
+            },
+            "data_model_and_pipeline": {
+                "entities": {
+                    "Person": [
+                        "id",
+                        "name",
+                        "role",
+                        "email"
+                    ],
+                    "Artifact": [
+                        "id",
+                        "type",
+                        "content",
+                        "summary",
+                        "created_at"
+                    ],
+                    "Relationships": [
+                        "Person --AUTHORED--> Artifact",
+                        "Person --RESOLVED--> Artifact",
+                        "Person --MENTIONED_IN--> Artifact"
+                    ]
+                },
+                "ingestion_pipeline_flow": [
+                    "Fetcher",
+                    "Claude Summarizer",
+                    "Vectorization",
+                    "Graph Linking"
+                ],
+                "summarizer_prompt": "Analyze this git commit diff and summarize its technical intent."
+            },
+            "api_endpoints": [
+                {
+                    "method": "POST",
+                    "path": "/ingest/github",
+                    "input": {
+                        "repo_url": "string",
+                        "branch": "string"
+                    },
+                    "action": "Clone repository, summarize commits, store results.",
+                    "output": {
+                        "ingested_commits": "int",
+                        "status": "ok|error"
+                    }
+                },
+                {
+                    "method": "POST",
+                    "path": "/search/expert",
+                    "input": {
+                        "query": "string"
+                    },
+                    "logic": [
+                        "Embed query",
+                        "Hybrid search",
+                        "Rank persons"
+                    ],
+                    "output": [
+                        {
+                            "person_id": "string",
+                            "name": "string",
+                            "score": "float",
+                            "relevance_reason": "string",
+                            "evidence_artifacts": [
+                                "string"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "method": "POST",
+                    "path": "/chat/twin/{person_id}",
+                    "input": {
+                        "message": "string"
+                    },
+                    "logic": [
+                        "Retrieve artifacts",
+                        "Construct Claude prompt",
+                        "Generate response"
+                    ],
+                    "output": {
+                        "response": "string"
+                    }
+                }
+            ],
+            "prompt_engineering": {
+                "expert_finder_prompt": {
+                    "system_prompt": "You are an expert-finding assistant..."
+                }
+            },
+            "acceptance_criteria": [
+                "Commits successfully ingested",
+                "Expert search returns relevant SME",
+                "AI Twin gracefully refuses when lacking context"
+            ],
+            "notes": "MVP uses local sample data."
+        },
+        {
+            "project_name": "RetailForecastPro",
+            "Description": "A demand forecasting and price-optimization engine for large retail chains, using gradient boosting, transformer time-series models, and multi-store causal features.",
+            "core_features": [
+                "SKU-level demand forecasting",
+                "Dynamic pricing recommendation engine",
+                "Store-cluster segmentation using embeddings",
+                "Causal inference for promo-uplift",
+                "Model monitoring dashboards"
+            ],
+            "architecture_stack": {
+                "backend": {
+                    "language": "Python",
+                    "framework": "FastAPI",
+                    "llm_integration": "OpenAI GPT-4.1 for summary reports",
+                    "orchestration": [
+                        "Prefect",
+                        "Ray"
+                    ]
+                },
+                "storage": {
+                    "vector_database": [
+                        "FAISS"
+                    ],
+                    "graph_or_relational_database": [
+                        "BigQuery",
+                        "Snowflake"
+                    ]
+                },
+                "frontend": {
+                    "framework": [
+                        "Next.js"
+                    ],
+                    "styling": "Tailwind CSS"
+                },
+                "audio_optional": {
+                    "services": []
+                }
+            },
+            "data_model_and_pipeline": {
+                "entities": {
+                    "Product": [
+                        "id",
+                        "sku",
+                        "category"
+                    ],
+                    "Store": [
+                        "id",
+                        "location",
+                        "cluster_id"
+                    ],
+                    "SalesRecord": [
+                        "id",
+                        "sku",
+                        "store_id",
+                        "units",
+                        "date"
+                    ],
+                    "Relationships": [
+                        "Store --SELLS--> Product"
+                    ]
+                },
+                "ingestion_pipeline_flow": [
+                    "ETL from retail systems",
+                    "Feature generation (price, weather, events)",
+                    "Model training (XGBoost + Temporal Fusion Transformers)",
+                    "Prediction API deployment"
+                ],
+                "summarizer_prompt": "Explain forecast anomalies and pricing leverage."
+            },
+            "api_endpoints": [
+                {
+                    "method": "POST",
+                    "path": "/forecast/demand",
+                    "input": {
+                        "sku": "string",
+                        "store_id": "string"
+                    },
+                    "action": "Generate 7/30/90-day forecasts.",
+                    "output": {
+                        "forecast": "array",
+                        "status": "ok"
+                    }
+                },
+                {
+                    "method": "POST",
+                    "path": "/recommend/price",
+                    "input": {
+                        "sku": "string",
+                        "store_id": "string"
+                    },
+                    "logic": [
+                        "Elasticity estimation",
+                        "Scenario simulation",
+                        "Optimal price calculation"
+                    ],
+                    "output": {
+                        "price": "float",
+                        "confidence": "float"
+                    }
+                }
+            ],
+            "prompt_engineering": {
+                "expert_finder_prompt": {
+                    "system_prompt": "Explain forecast anomalies and actionable recommendations."
+                }
+            },
+            "acceptance_criteria": [
+                "MAPE < 15% on validation stores",
+                "Pricing engine provides monotonic, sensible recommendations"
+            ],
+            "notes": "Supports 5M+ daily records."
+        },
+        {
+            "project_name": "FinGuard Credit Risk Studio",
+            "Description": "A modular risk modeling platform for consumer lending orgs to build scorecards, dual-tower embeddings, and PD/LGD pipelines.",
+            "core_features": [
+                "Automated feature store for credit variables",
+                "Scorecard and dual-tower model training",
+                "Rating migration matrix generation",
+                "OOT model stability analysis",
+                "Risk dashboard with PSI and drift metrics"
+            ],
+            "architecture_stack": {
+                "backend": {
+                    "language": "Python",
+                    "framework": "Flask",
+                    "llm_integration": "Llama-3-70B for documentation and feature explanations",
+                    "orchestration": [
+                        "Airflow"
+                    ]
+                },
+                "storage": {
+                    "vector_database": [
+                        "Milvus"
+                    ],
+                    "graph_or_relational_database": [
+                        "PostgreSQL"
+                    ]
+                },
+                "frontend": {
+                    "framework": [
+                        "React"
+                    ],
+                    "styling": "Tailwind CSS"
+                },
+                "audio_optional": {
+                    "services": []
+                }
+            },
+            "data_model_and_pipeline": {
+                "entities": {
+                    "Customer": [
+                        "id",
+                        "demographics"
+                    ],
+                    "Loan": [
+                        "id",
+                        "customer_id",
+                        "amount",
+                        "date"
+                    ],
+                    "FeatureVector": [
+                        "id",
+                        "loan_id",
+                        "feature_set"
+                    ],
+                    "Relationships": [
+                        "Customer --OWNS--> Loan",
+                        "Loan --GENERATES--> FeatureVector"
+                    ]
+                },
+                "ingestion_pipeline_flow": [
+                    "Raw loan ingestion",
+                    "Feature engineering (cross-loan + time window)",
+                    "Model training (LGBM, XGB, Dual-Tower)",
+                    "Monitoring"
+                ],
+                "summarizer_prompt": "Describe variable drift and model sensitivity."
+            },
+            "api_endpoints": [
+                {
+                    "method": "POST",
+                    "path": "/predict/pd",
+                    "input": {
+                        "loan_id": "string"
+                    },
+                    "action": "Compute default probability.",
+                    "output": {
+                        "pd": "float"
+                    }
+                },
+                {
+                    "method": "POST",
+                    "path": "/monitor/drift",
+                    "input": {
+                        "date": "string"
+                    },
+                    "logic": [
+                        "PSI calculation",
+                        "Feature distribution comparison"
+                    ],
+                    "output": {
+                        "psi_report": "object"
+                    }
+                }
+            ],
+            "prompt_engineering": {
+                "expert_finder_prompt": {
+                    "system_prompt": "Explain credit model drift and scoring logic."
+                }
+            },
+            "acceptance_criteria": [
+                "AUC > 0.72 on validation",
+                "PSI < 0.1 for stable features"
+            ],
+            "notes": "Designed for high-volume lending platforms."
+        }
+    ]
+}

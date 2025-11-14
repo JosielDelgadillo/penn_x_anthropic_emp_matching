@@ -34,3 +34,6 @@ env/
 # API Keys and Environment
 .env
 profiles.json
+.env
+.venv
+.env.example

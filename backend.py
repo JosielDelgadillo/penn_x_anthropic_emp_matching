@@ -37,10 +37,16 @@ if DEMO_MODE:
     claude_client = None
 else:
     github_client = Github(GITHUB_TOKEN)
-    claude_client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+    try:
+        claude_client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+    except Exception as exc:
+        print(f"Error initializing Claude client: {exc}")
+        claude_client = None
 
 PROFILES_FILE = "profiles.json"
 DEMO_PROFILES_FILE = "demo_profiles.json"
+PERSONAL_FILE = "personal.json"
+PROJECTS_FILE = "projects.json"
 
 
 def extract_repo_name(url: str) -> str:
@@ -203,8 +209,9 @@ Rules:
 CRITICAL: Return ONLY valid JSON. DO NOT include markdown code blocks, explanations, or any text outside the JSON object.
 """
 
+    claude = get_claude_client()
     try:
-        response = claude_client.messages.create(
+        response = claude.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=1200,
             messages=[{"role": "user", "content": prompt}]
@@ -270,10 +277,227 @@ def load_profiles() -> List[dict]:
         return []
 
 
+def get_claude_client():
+    """Return a ready anthropic client or raise if unavailable."""
+    global claude_client
+
+    if claude_client:
+        return claude_client
+
+    if not ANTHROPIC_KEY:
+        raise HTTPException(status_code=503, detail="Anthropic API key not configured.")
+
+    try:
+        claude_client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+        return claude_client
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Failed to initialize Claude client: {exc}")
+
+
+def load_json_records(filename: str, key: str) -> List[dict]:
+    """
+    Load list-type records from a JSON file.
+
+    Args:
+        filename: Relative path of the JSON file.
+        key: Key expected to hold the list in the JSON payload.
+    """
+    try:
+        with open(filename, 'r') as f:
+            data = json.load(f)
+            if key:
+                return data.get(key, [])
+            return data
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"{filename} not found. Add the file to use this endpoint.")
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=500, detail=f"Error parsing {filename}: {exc}")
+
+
+def load_personas() -> List[dict]:
+    """Return personas from personal.json"""
+    return load_json_records(PERSONAL_FILE, "personas")
+
+
+def load_projects() -> List[dict]:
+    """Return projects from projects.json"""
+    return load_json_records(PROJECTS_FILE, "projects")
+
+
+def summarize_persona(persona: dict) -> dict:
+    """Extract concise persona context for Claude prompts."""
+    survey_answers = [resp.get("answer") for resp in persona.get("survey", {}).get("responses", []) if resp.get("answer")]
+    return {
+        "id": persona.get("id"),
+        "name": persona.get("full_name"),
+        "headline": persona.get("resume", {}).get("headline"),
+        "current_role": persona.get("resume", {}).get("current_role"),
+        "target_roles": persona.get("application", {}).get("target_roles", []),
+        "preferred_locations": persona.get("application", {}).get("preferred_locations", []),
+        "skills": persona.get("resume", {}).get("skills", []),
+        "domains": persona.get("resume", {}).get("domains", []),
+        "interests": survey_answers,
+        "work_style": next(
+            (
+                resp.get("answer")
+                for resp in persona.get("survey", {}).get("responses", [])
+                if "working style" in resp.get("question", "").lower()
+            ),
+            ""
+        )
+    }
+
+
+def summarize_project(project: dict) -> dict:
+    """Extract concise project details for Claude prompts."""
+    return {
+        "name": project.get("project_name"),
+        "description": project.get("Description"),
+        "core_features": project.get("core_features", []),
+        "architecture_stack": project.get("architecture_stack", {}),
+        "data_model_and_pipeline": project.get("data_model_and_pipeline", {}),
+        "api_endpoints": project.get("api_endpoints", []),
+        "prompt_engineering": project.get("prompt_engineering", {}),
+        "acceptance_criteria": project.get("acceptance_criteria", []),
+        "notes": project.get("notes", "")
+    }
+
+
+def run_claude_matching(client, personas: List[dict], projects: List[dict]) -> List[dict]:
+    """Call Claude to match personas to projects with explanations."""
+    persona_summaries = [summarize_persona(p) for p in personas]
+    project_summaries = [summarize_project(p) for p in projects]
+
+    prompt = f"""You are a staffing AI that pairs candidates to innovation projects.
+
+Personas:
+{json.dumps(persona_summaries, indent=2)}
+
+Projects:
+{json.dumps(project_summaries, indent=2)}
+
+For every persona, choose the 1-3 best-fit projects. Cite concrete evidence from their skills, interests, or work style and the project requirements.
+
+Return ONLY valid JSON with this exact shape:
+[
+  {{
+    "persona_id": "id",
+    "persona_name": "name",
+    "assignments": [
+      {{
+        "project_name": "Project",
+        "fit_explanation": "2-3 sentences explaining the match referencing persona + project data",
+        "confidence": "High|Medium|Low"
+      }}
+    ],
+    "overall_summary": "Sentence summarizing how this persona fits the recommended projects."
+  }}
+]
+
+Rules:
+- Keep explanations professional and evidence-based.
+- Mention overlapping skills, domains, or interests explicitly.
+- If a project is a stretch fit, explain what support they would need.
+- Never invent new personas or projects.
+"""
+
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=1200,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    response_text = response.content[0].text.strip()
+
+    if response_text.startswith("```"):
+        response_text = response_text.split("```")[1]
+        if response_text.startswith("json"):
+            response_text = response_text[4:]
+
+    return json.loads(response_text)
+
+
+def _project_text_blob(project: dict) -> str:
+    """Construct a lowercase text blob for rule-based scoring."""
+    sections = [
+        project.get("project_name", ""),
+        project.get("Description", ""),
+        " ".join(project.get("core_features", [])),
+        json.dumps(project.get("architecture_stack", {})),
+        json.dumps(project.get("data_model_and_pipeline", {})),
+        " ".join(project.get("acceptance_criteria", [])),
+        project.get("notes", "")
+    ]
+    return " ".join(sections).lower()
+
+
+def _rule_based_match(personas: List[dict], projects: List[dict]) -> List[dict]:
+    """Fallback matcher when Claude is unavailable."""
+    project_blobs = {proj.get("project_name"): _project_text_blob(proj) for proj in projects}
+    results = []
+
+    for persona in personas:
+        persona_skills = [skill.lower() for skill in persona.get("resume", {}).get("skills", [])]
+        persona_domains = [domain.lower() for domain in persona.get("resume", {}).get("domains", [])]
+        persona_targets = [role.lower() for role in persona.get("application", {}).get("target_roles", [])]
+
+        scored_projects = []
+        for project in projects:
+            blob = project_blobs.get(project.get("project_name"), "")
+            skill_overlap = [skill for skill in persona_skills if skill in blob]
+            domain_overlap = [domain for domain in persona_domains if domain in blob]
+            role_overlap = [role for role in persona_targets if role in blob]
+            score = len(skill_overlap) * 2 + len(domain_overlap) + len(role_overlap)
+            scored_projects.append((project, score, skill_overlap, domain_overlap))
+
+        scored_projects.sort(key=lambda item: item[1], reverse=True)
+        top_projects = scored_projects[:3] if scored_projects else []
+
+        assignments = []
+        for project, score, skill_overlap, domain_overlap in top_projects:
+            explanation_bits = []
+            if skill_overlap:
+                explanation_bits.append(f"skills match: {', '.join(set(skill_overlap))}")
+            if domain_overlap:
+                explanation_bits.append(f"domain experience in {', '.join(set(domain_overlap))}")
+            if not explanation_bits:
+                explanation_bits.append("relevant interests based on target roles and general experience")
+            confidence = "High" if score >= 6 else "Medium" if score >= 3 else "Low"
+            assignments.append({
+                "project_name": project.get("project_name"),
+                "fit_explanation": f"Rule-based match ({'; '.join(explanation_bits)}).",
+                "confidence": confidence
+            })
+
+        results.append({
+            "persona_id": persona.get("id"),
+            "persona_name": persona.get("full_name"),
+            "assignments": assignments or [],
+            "overall_summary": "Rule-based recommendation generated because Claude was unavailable."
+        })
+
+    return results
+
+
 def save_profiles(profiles: List[dict]):
     """Save profiles to JSON file"""
     with open(PROFILES_FILE, 'w') as f:
         json.dump(profiles, f, indent=2)
+
+
+def match_personas_to_projects(personas: List[dict], projects: List[dict]) -> List[dict]:
+    """Generate persona-to-project matches using Claude or rule-based fallback."""
+    if not personas or not projects:
+        return []
+
+    if DEMO_MODE:
+        return _rule_based_match(personas, projects)
+
+    client = get_claude_client()
+    try:
+        return run_claude_matching(client, personas, projects)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Claude matching error: {exc}")
 
 
 @app.post("/analyze")
@@ -408,6 +632,8 @@ async def search_profiles(query: str):
             "message": "Demo mode: Using simple keyword matching. Add API keys for AI-powered semantic search."
         }
 
+    claude = get_claude_client()
+
     prompt = f"""You are a developer matching system. Given a search query and developer profiles, identify the top 3 most relevant developers.
 
 Query: "{query}"
@@ -436,7 +662,7 @@ CRITICAL: Return ONLY valid JSON array. DO NOT include markdown, explanations, o
 """
 
     try:
-        response = claude_client.messages.create(
+        response = claude.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
@@ -470,6 +696,31 @@ CRITICAL: Return ONLY valid JSON array. DO NOT include markdown, explanations, o
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search error: {str(e)}")
+
+
+@app.post("/match")
+async def match_endpoint():
+    """
+    Pair personas with projects using Claude for reasoning (or rule-based fallback).
+    """
+    personas = load_personas()
+    projects = load_projects()
+
+    if not personas:
+        raise HTTPException(status_code=400, detail="No personas found in personal.json")
+    if not projects:
+        raise HTTPException(status_code=400, detail="No projects found in projects.json")
+
+    matches = match_personas_to_projects(personas, projects)
+
+    return {
+        "success": True,
+        "persona_count": len(personas),
+        "project_count": len(projects),
+        "matches": matches,
+        "using_claude": not DEMO_MODE,
+        "demo_mode": DEMO_MODE
+    }
 
 
 @app.get("/")

@@ -1,0 +1,55 @@
+{
+    "success": true,
+    "persona_count": 3,
+    "project_count": 3,
+    "matches": [
+        {
+            "persona_id": "josiel_delgadillo",
+            "persona_name": "Josiel Delgadillo",
+            "assignments": [
+                {
+                    "project_name": "RetailForecastPro",
+                    "fit_explanation": "Perfect alignment with Josiel's core expertise in time-series forecasting, pricing analytics, and Python-based ML at an HVAC manufacturer. The project's focus on demand forecasting, dynamic pricing optimization, and causal inference for promo-uplift directly matches his interests in pricing decisions and forecasting models. His experience with cloud platforms (AWS/Snowflake) aligns well with the BigQuery/Snowflake architecture.",
+                    "confidence": "High"
+                },
+                {
+                    "project_name": "OrgLens",
+                    "fit_explanation": "Strong technical fit given Josiel's Python and ML skills, plus his interest in end-to-end data projects with pipeline design. The expert discovery engine and semantic search components would leverage his machine learning background. However, this represents a domain shift from his current HVAC/pricing focus to knowledge management systems.",
+                    "confidence": "Medium"
+                }
+            ],
+            "overall_summary": "Josiel is an excellent fit for RetailForecastPro given his specialized forecasting and pricing expertise, with OrgLens offering an opportunity to apply his ML skills in a new domain."
+        },
+        {
+            "persona_id": "aashna_goel",
+            "persona_name": "Aashna Goel",
+            "assignments": [
+                {
+                    "project_name": "RetailForecastPro",
+                    "fit_explanation": "Strong strategic and operational alignment with Aashna's interests in supply chain optimization and margin improvement from her logistics background at Goel Roadways. Her skills in financial analysis and stakeholder management would be valuable for translating technical forecasting insights into business strategy. The retail operations focus connects well with her consulting and strategy interests, though she would need technical support for the ML implementation aspects.",
+                    "confidence": "Medium"
+                }
+            ],
+            "overall_summary": "Aashna would bring valuable business strategy and operations perspective to RetailForecastPro, focusing on the commercial and stakeholder management aspects while partnering with technical team members."
+        },
+        {
+            "persona_id": "xiangwei_zheng",
+            "persona_name": "Xiangwei (Magie) Zheng",
+            "assignments": [
+                {
+                    "project_name": "FinGuard Credit Risk Studio",
+                    "fit_explanation": "Exceptional fit combining Xiangwei's Risk Control Analyst internship experience, statistical modeling skills, and interest in financial risk systems. The project's focus on credit scorecards, PD/LGD modeling, and risk metrics like PSI directly aligns with her background in probability, stochastic processes, and risk analysis. Her work style of starting with well-defined problems and doing deep analysis matches the rigorous quantitative modeling requirements.",
+                    "confidence": "High"
+                },
+                {
+                    "project_name": "OrgLens",
+                    "fit_explanation": "Good technical alignment with Xiangwei's Python skills and data science background, particularly the probabilistic modeling aspects of expert discovery and semantic search. Her systems engineering perspective would be valuable for the multi-source data ingestion pipeline. However, this would be a domain shift from her financial risk focus to knowledge management systems.",
+                    "confidence": "Medium"
+                }
+            ],
+            "overall_summary": "Xiangwei is ideally suited for FinGuard Credit Risk Studio given her direct risk analysis experience and quantitative modeling skills, with OrgLens offering a complementary opportunity to apply her technical skills in a different domain."
+        }
+    ],
+    "using_claude": true,
+    "demo_mode": false
+}

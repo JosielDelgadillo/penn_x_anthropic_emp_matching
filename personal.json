@@ -1,0 +1,585 @@
+{
+    "personas": [
+        {
+            "id": "josiel_delgadillo",
+            "full_name": "Josiel Delgadillo",
+            "linkedin": "https://www.linkedin.com/in/josieldelgadillo/",
+            "application": {
+                "target_roles": [
+                    "Data Scientist",
+                    "Machine Learning Engineer",
+                    "Analytics Engineer"
+                ],
+                "preferred_locations": [
+                    "Philadelphia, PA",
+                    "Remote (US)"
+                ],
+                "work_authorization": "US work authorized",
+                "earliest_start_date": "2025-06-01",
+                "role_seniority": "Mid-level"
+            },
+            "resume": {
+                "headline": "Data & ML practitioner working at an HVAC manufacturer, building forecasting and pricing models",
+                "current_role": "Senior Data Analyst / Data Scientist",
+                "current_employer": "Carrier",
+                "years_experience": 7,
+                "education": [
+                    {
+                        "degree": "Master's in Engineering / Data-related field",
+                        "institution": "University of Pennsylvania (assumed)",
+                        "status": "Completed"
+                    }
+                ],
+                "skills": [
+                    "Python",
+                    "Machine Learning",
+                    "Time Series Forecasting",
+                    "Pricing Analytics",
+                    "SQL",
+                    "Data Engineering (ETL/Dataiku)",
+                    "Cloud (AWS / Snowflake)"
+                ],
+                "domains": [
+                    "HVAC",
+                    "Healthcare",
+                    "Retail & Pricing",
+                    "Analytics Platforms"
+                ]
+            },
+            "survey": {
+                "responses": [
+                    {
+                        "question_id": 1,
+                        "question": "What types of projects do you most enjoy working on?",
+                        "answer": "I enjoy end-to-end data projects where I can design the pipeline, engineer features, and ship a model that directly influences pricing or demand decisions."
+                    },
+                    {
+                        "question_id": 2,
+                        "question": "Which 3 skills do you most want to use in your next projects?",
+                        "answer": "Time-series forecasting, causal inference for pricing, and scalable data engineering in the cloud."
+                    },
+                    {
+                        "question_id": 3,
+                        "question": "What skills or areas are you most interested in developing over the next 6–12 months?",
+                        "answer": "More production-grade MLOps, reinforcement learning for pricing, and better experimentation design for A/B tests."
+                    },
+                    {
+                        "question_id": 4,
+                        "question": "What is your preferred working style (e.g., independent vs. collaborative, structured vs. ambiguous)?",
+                        "answer": "I like working in small, collaborative teams with clear business goals but plenty of ambiguity in how we reach them."
+                    },
+                    {
+                        "question_id": 5,
+                        "question": "Which industries or problem spaces are you most interested in?",
+                        "answer": "Energy-efficient HVAC, healthcare analytics, and B2B pricing optimization."
+                    }
+                ]
+            },
+            "dev_profile": {
+                "success": true,
+                "profiles_generated": 8,
+                "profiles": [
+                    {
+                        "github_username": "tiangolo",
+                        "name": "Sebastián Ramírez",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/1326112?v=4",
+                        "total_commits": 31,
+                        "primary_languages": [
+                            "Python",
+                            "Markdown",
+                            "YAML"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 31 commits",
+                        "ai_summary": "Active contributor to fastapi",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "fastapi"
+                    },
+                    {
+                        "github_username": "github-actions[bot]",
+                        "name": "github-actions[bot]",
+                        "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+                        "total_commits": 42,
+                        "primary_languages": [
+                            "Markdown"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 42 commits",
+                        "ai_summary": "Active contributor to fastapi",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "fastapi"
+                    },
+                    {
+                        "github_username": "YuriiMotov",
+                        "name": "Motov Yurii",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/109919500?v=4",
+                        "total_commits": 7,
+                        "primary_languages": [
+                            "Markdown",
+                            "Python",
+                            "YAML"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 7 commits",
+                        "ai_summary": "Active contributor to fastapi",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "fastapi"
+                    },
+                    {
+                        "github_username": "ceb10n",
+                        "name": "Rafael de Oliveira Marques",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/235213?v=4",
+                        "total_commits": 2,
+                        "primary_languages": [
+                            "Markdown"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 2 commits",
+                        "ai_summary": "Active contributor to fastapi",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "fastapi"
+                    },
+                    {
+                        "github_username": "nilslindemann",
+                        "name": "Nils-Hero Lindemann",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/6892179?v=4",
+                        "total_commits": 3,
+                        "primary_languages": [
+                            "Markdown"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 3 commits",
+                        "ai_summary": "Active contributor to fastapi",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "fastapi"
+                    },
+                    {
+                        "github_username": "dependabot[bot]",
+                        "name": "dependabot[bot]",
+                        "avatar_url": "https://avatars.githubusercontent.com/in/29110?v=4",
+                        "total_commits": 6,
+                        "primary_languages": [
+                            "YAML"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 6 commits",
+                        "ai_summary": "Active contributor to fastapi",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "fastapi"
+                    },
+                    {
+                        "github_username": "pre-commit-ci[bot]",
+                        "name": "pre-commit-ci[bot]",
+                        "avatar_url": "https://avatars.githubusercontent.com/in/68672?v=4",
+                        "total_commits": 3,
+                        "primary_languages": [
+                            "YAML"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 3 commits",
+                        "ai_summary": "Active contributor to fastapi",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "fastapi"
+                    },
+                    {
+                        "github_username": "svlandeg",
+                        "name": "Sofie Van Landeghem",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/8796347?v=4",
+                        "total_commits": 2,
+                        "primary_languages": [
+                            "Python",
+                            "YAML"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 2 commits",
+                        "ai_summary": "Active contributor to fastapi",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "fastapi"
+                    }
+                ],
+                "demo_mode": false
+            }
+        },
+        {
+            "id": "aashna_goel",
+            "full_name": "Aashna Goel",
+            "linkedin": "https://www.linkedin.com/in/aashna-goel/",
+            "application": {
+                "target_roles": [
+                    "Strategy Consultant",
+                    "Product Manager",
+                    "Operations / Supply Chain Lead"
+                ],
+                "preferred_locations": [
+                    "Philadelphia, PA",
+                    "New York, NY",
+                    "Open to global hubs"
+                ],
+                "work_authorization": "Likely needs employer sponsorship (mock assumption)",
+                "earliest_start_date": "2025-08-01",
+                "role_seniority": "MBA Internship / Post-MBA role"
+            },
+            "resume": {
+                "headline": "Wharton MBA candidate with experience in family-run logistics and interest in strategy, operations, and consulting",
+                "current_role": "MBA Candidate",
+                "current_employer": "The Wharton School",
+                "years_experience": 4,
+                "education": [
+                    {
+                        "degree": "MBA",
+                        "institution": "The Wharton School, University of Pennsylvania",
+                        "status": "In progress"
+                    },
+                    {
+                        "degree": "Bachelor's degree (Business / Economics or similar)",
+                        "institution": "Institution not specified (mock placeholder)",
+                        "status": "Completed"
+                    }
+                ],
+                "skills": [
+                    "Financial Analysis",
+                    "Operations & Supply Chain",
+                    "Strategy & Market Research",
+                    "Excel & Financial Modeling",
+                    "Stakeholder Management",
+                    "Client Communication"
+                ],
+                "domains": [
+                    "Logistics & Transportation (Goel Roadways)",
+                    "Management Consulting",
+                    "Corporate Strategy"
+                ]
+            },
+            "survey": {
+                "responses": [
+                    {
+                        "question_id": 1,
+                        "question": "What types of projects do you most enjoy working on?",
+                        "answer": "I love projects that sit at the intersection of strategy and operations—optimizing networks, improving margins, and rethinking go-to-market models."
+                    },
+                    {
+                        "question_id": 2,
+                        "question": "Which 3 skills do you most want to use in your next projects?",
+                        "answer": "Structured problem-solving, financial modeling, and stakeholder communication."
+                    },
+                    {
+                        "question_id": 3,
+                        "question": "What skills or areas are you most interested in developing over the next 6–12 months?",
+                        "answer": "Product management fundamentals, data-driven experimentation, and leading cross-functional teams."
+                    },
+                    {
+                        "question_id": 4,
+                        "question": "What is your preferred working style (e.g., independent vs. collaborative, structured vs. ambiguous)?",
+                        "answer": "I prefer highly collaborative teams with structured goals but am comfortable operating in ambiguous environments typical of consulting and product work."
+                    },
+                    {
+                        "question_id": 5,
+                        "question": "Which industries or problem spaces are you most interested in?",
+                        "answer": "Logistics and transportation, management consulting, and tech-enabled operations."
+                    }
+                ]
+            },
+            "dev_profile": {
+                "success": true,
+                "profiles_generated": 2,
+                "profiles": [
+                    {
+                        "github_username": "hseera",
+                        "name": "Harinder Seera",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/59352356?v=4",
+                        "total_commits": 97,
+                        "primary_languages": [
+                            "Markdown",
+                            "Python",
+                            "YAML"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 97 commits",
+                        "ai_summary": "Active contributor to python-utilities",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "python-utilities"
+                    },
+                    {
+                        "github_username": "actions-user",
+                        "name": "actions-user",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/65916846?v=4",
+                        "total_commits": 3,
+                        "primary_languages": [
+                            "Markdown"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 3 commits",
+                        "ai_summary": "Active contributor to python-utilities",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "python-utilities"
+                    }
+                ],
+                "demo_mode": false
+            }
+        },
+        {
+            "id": "xiangwei_zheng",
+            "full_name": "Xiangwei (Magie) Zheng",
+            "linkedin": "https://www.linkedin.com/in/xiangwei-zheng",
+            "application": {
+                "target_roles": [
+                    "Data Scientist",
+                    "Quantitative Researcher",
+                    "Risk / ML Engineer"
+                ],
+                "preferred_locations": [
+                    "New York, NY",
+                    "San Francisco Bay Area",
+                    "Philadelphia, PA"
+                ],
+                "work_authorization": "Likely needs employer sponsorship (mock assumption)",
+                "earliest_start_date": "2025-07-01",
+                "role_seniority": "Early-career / Entry-level"
+            },
+            "resume": {
+                "headline": "MSE in Systems Engineering with experience as a Risk Control Analyst Intern; interested in data-driven risk and ML systems",
+                "current_role": "Graduate Student, Systems Engineering",
+                "current_employer": "University of Pennsylvania",
+                "years_experience": 2,
+                "education": [
+                    {
+                        "degree": "MSE in Systems Engineering",
+                        "institution": "University of Pennsylvania",
+                        "status": "In progress"
+                    },
+                    {
+                        "degree": "Bachelor's degree in Engineering / Applied Math (mock placeholder)",
+                        "institution": "Institution not specified",
+                        "status": "Completed"
+                    }
+                ],
+                "skills": [
+                    "Python",
+                    "Statistical Modeling",
+                    "Risk Analysis",
+                    "Optimization",
+                    "Data Visualization",
+                    "SQL",
+                    "Probability & Stochastic Processes"
+                ],
+                "domains": [
+                    "Financial Risk",
+                    "Systems Engineering",
+                    "Data Science & Analytics"
+                ]
+            },
+            "survey": {
+                "responses": [
+                    {
+                        "question_id": 1,
+                        "question": "What types of projects do you most enjoy working on?",
+                        "answer": "I enjoy projects where I can model complex systems—especially those involving financial risk, uncertainty, or large-scale optimization."
+                    },
+                    {
+                        "question_id": 2,
+                        "question": "Which 3 skills do you most want to use in your next projects?",
+                        "answer": "Probabilistic modeling, Python-based data science, and risk analytics."
+                    },
+                    {
+                        "question_id": 3,
+                        "question": "What skills or areas are you most interested in developing over the next 6–12 months?",
+                        "answer": "Productionizing ML models, modern data tooling in the cloud, and communication of complex technical insights to non-technical stakeholders."
+                    },
+                    {
+                        "question_id": 4,
+                        "question": "What is your preferred working style (e.g., independent vs. collaborative, structured vs. ambiguous)?",
+                        "answer": "I like starting with a well-defined problem, doing deep individual analysis, and then iterating collaboratively with teammates and stakeholders."
+                    },
+                    {
+                        "question_id": 5,
+                        "question": "Which industries or problem spaces are you most interested in?",
+                        "answer": "Financial services, fintech risk modeling, and any domain where rigorous quantitative modeling drives key decisions."
+                    }
+                ]
+            },
+            "dev_profile": {
+                "success": true,
+                "profiles_generated": 5,
+                "profiles": [
+                    {
+                        "github_username": "sampart",
+                        "name": "Sam Partington",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/1507328?v=4",
+                        "total_commits": 2,
+                        "primary_languages": [
+                            "Markdown"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 2 commits",
+                        "ai_summary": "Active contributor to awesome",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "awesome"
+                    },
+                    {
+                        "github_username": "sindresorhus",
+                        "name": "Sindre Sorhus",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/170270?v=4",
+                        "total_commits": 23,
+                        "primary_languages": [
+                            "Markdown",
+                            "YAML"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 23 commits",
+                        "ai_summary": "Active contributor to awesome",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "awesome"
+                    },
+                    {
+                        "github_username": "thisisisa",
+                        "name": "Isabela de Matos",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/30164700?v=4",
+                        "total_commits": 2,
+                        "primary_languages": [
+                            "Markdown"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 2 commits",
+                        "ai_summary": "Active contributor to awesome",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "awesome"
+                    },
+                    {
+                        "github_username": "tyaga001",
+                        "name": "Ankur Tyagi",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/16003228?v=4",
+                        "total_commits": 2,
+                        "primary_languages": [
+                            "Markdown"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 2 commits",
+                        "ai_summary": "Active contributor to awesome",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "awesome"
+                    },
+                    {
+                        "github_username": "rsamborski",
+                        "name": "Remigiusz Samborski",
+                        "avatar_url": "https://avatars.githubusercontent.com/u/1068280?v=4",
+                        "total_commits": 2,
+                        "primary_languages": [
+                            "Markdown"
+                        ],
+                        "expertise_areas": [
+                            "Code contribution"
+                        ],
+                        "frameworks": [],
+                        "work_style": "active contributor",
+                        "commit_pattern": "Made 2 commits",
+                        "ai_summary": "Active contributor to awesome",
+                        "best_for": [
+                            "Code review",
+                            "Technical questions"
+                        ],
+                        "repo_analyzed": "awesome"
+                    }
+                ],
+                "demo_mode": false
+            }
+        }
+    ]
+}
