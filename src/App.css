@@ -74,7 +74,8 @@ main {
   color: #7dd3fc;
 }
 
-.cta-link {
+.cta-link,
+.cta-button {
   border: 1px solid rgba(125, 211, 252, 0.4);
   padding: 0.6rem 1.2rem;
   border-radius: 999px;
@@ -82,6 +83,7 @@ main {
   color: #7dd3fc;
   font-weight: 600;
   transition: background 0.2s ease, color 0.2s ease;
+  font-family: inherit;
 }
 
 .cta-link.primary {
@@ -96,12 +98,24 @@ main {
   background: transparent;
 }
 
-.cta-link:hover {
+.cta-link:hover,
+.cta-button:hover {
   background: rgba(125, 211, 252, 0.2);
 }
 
 .cta-link.primary:hover {
   background: #67c5f1;
+}
+
+.cta-button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.cta-button:focus-visible {
+  outline: 2px solid #67c5f1;
+  outline-offset: 3px;
 }
 
 .hero {
@@ -174,6 +188,12 @@ main {
   margin: 1rem 0 1.5rem;
   padding-left: 1rem;
   color: rgba(244, 246, 251, 0.85);
+}
+
+.console-note {
+  font-size: 0.85rem;
+  color: rgba(244, 246, 251, 0.55);
+  margin-top: 0.75rem;
 }
 
 footer {

@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import './App.css';
 
 const navItems = [
@@ -7,6 +8,21 @@ const navItems = [
 ];
 
 function App() {
+  const handleHelloClick = useCallback(async () => {
+    try {
+      const response = await fetch('/api/hello');
+      if (!response.ok) {
+        throw new Error('Request to /api/hello failed');
+      }
+      const data = await response.json();
+      // eslint-disable-next-line no-console
+      console.log('Backend says:', data.message);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Unable to fetch hello message', error);
+    }
+  }, []);
+
   return (
     <div className="App">
       <nav className="nav">
@@ -82,6 +98,10 @@ function App() {
           <a className="cta-link primary" href="mailto:pxae@penn.edu">
             Email pxae@penn.edu
           </a>
+          <button type="button" className="cta-link primary cta-button" onClick={handleHelloClick}>
+            Say hello
+          </button>
+          <p className="console-note">Click the button and check the console for the backend message.</p>
         </section>
       </main>
 

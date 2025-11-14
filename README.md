@@ -39,11 +39,35 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
+## FastAPI backend with Claude
+
+The repository now includes `server_fastapi.py`, a FastAPI server that proxies requests to Anthropic's Claude models.
+
+### Prerequisites
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install fastapi uvicorn anthropic pydantic
+export ANTHROPIC_API_KEY=sk-ant-...
+```
+
+### Run the API
+
+```bash
+uvicorn server_fastapi:app --reload --port 8000
+```
+
+Send a prompt:
+
+```bash
+curl -X POST http://localhost:8000/api/claude \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Say hello from Penn."}'
+```
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
 
 ### Code Splitting
 
