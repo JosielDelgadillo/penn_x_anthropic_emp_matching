@@ -27,13 +27,20 @@ app.add_middleware(
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY")
 
-if not GITHUB_TOKEN or not ANTHROPIC_KEY:
-    raise Exception("Missing API keys in .env file")
+# Demo mode: runs without API keys using sample data
+DEMO_MODE = not (GITHUB_TOKEN and ANTHROPIC_KEY)
 
-github_client = Github(GITHUB_TOKEN)
-claude_client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+if DEMO_MODE:
+    print("⚠️  Running in DEMO MODE - No API keys found. Using sample data.")
+    print("   To enable real API: Create .env file with GITHUB_TOKEN and ANTHROPIC_API_KEY")
+    github_client = None
+    claude_client = None
+else:
+    github_client = Github(GITHUB_TOKEN)
+    claude_client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
 
 PROFILES_FILE = "profiles.json"
+DEMO_PROFILES_FILE = "demo_profiles.json"
 
 
 def extract_repo_name(url: str) -> str:
@@ -248,6 +255,14 @@ CRITICAL: Return ONLY valid JSON. DO NOT include markdown code blocks, explanati
 
 def load_profiles() -> List[dict]:
     """Load profiles from JSON file"""
+    if DEMO_MODE:
+        # In demo mode, always return demo profiles
+        try:
+            with open(DEMO_PROFILES_FILE, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return []
+
     try:
         with open(PROFILES_FILE, 'r') as f:
             return json.load(f)
@@ -269,6 +284,17 @@ async def analyze_repos(repos: List[str]):
     Input: List of GitHub repository URLs
     Output: Generated developer profiles
     """
+    if DEMO_MODE:
+        # In demo mode, return sample profiles
+        demo_profiles = load_profiles()
+        return {
+            "success": True,
+            "profiles_generated": len(demo_profiles),
+            "profiles": demo_profiles,
+            "demo_mode": True,
+            "message": "Demo mode: Using sample data. Add API keys to analyze real repositories."
+        }
+
     all_profiles = {}
 
     for repo_url in repos:
@@ -298,7 +324,8 @@ async def analyze_repos(repos: List[str]):
     return {
         "success": True,
         "profiles_generated": len(profiles_list),
-        "profiles": profiles_list
+        "profiles": profiles_list,
+        "demo_mode": False
     }
 
 
@@ -306,7 +333,11 @@ async def analyze_repos(repos: List[str]):
 async def get_profiles():
     """Return all generated developer profiles"""
     profiles = load_profiles()
-    return {"profiles": profiles, "count": len(profiles)}
+    return {
+        "profiles": profiles,
+        "count": len(profiles),
+        "demo_mode": DEMO_MODE
+    }
 
 
 @app.get("/search")
@@ -314,12 +345,68 @@ async def search_profiles(query: str):
     """
     Search for developers using natural language query
 
-    Uses Claude to semantically match query against profiles
+    Uses Claude to semantically match query against profiles (or simple keyword matching in demo mode)
     """
     profiles = load_profiles()
 
     if not profiles:
-        return {"matches": [], "message": "No profiles available. Analyze repositories first."}
+        return {
+            "matches": [],
+            "message": "No profiles available. Analyze repositories first.",
+            "demo_mode": DEMO_MODE
+        }
+
+    if DEMO_MODE:
+        # Simple keyword-based search for demo mode
+        query_lower = query.lower()
+        matches = []
+
+        for profile in profiles:
+            score = 0
+            reasons = []
+
+            # Check expertise areas
+            for expertise in profile.get("expertise_areas", []):
+                if any(word in expertise.lower() for word in query_lower.split()):
+                    score += 30
+                    reasons.append(f"expertise in {expertise}")
+
+            # Check languages
+            for lang in profile.get("primary_languages", []):
+                if lang.lower() in query_lower:
+                    score += 20
+                    reasons.append(f"works with {lang}")
+
+            # Check frameworks
+            for framework in profile.get("frameworks", []):
+                if framework.lower() in query_lower:
+                    score += 25
+                    reasons.append(f"uses {framework}")
+
+            # Check best_for
+            for item in profile.get("best_for", []):
+                if any(word in item.lower() for word in query_lower.split() if len(word) > 3):
+                    score += 15
+                    reasons.append(f"good at {item.lower()}")
+
+            if score > 0:
+                match_reason = "Strong match: " + ", ".join(reasons[:3])
+                matches.append({
+                    **profile,
+                    "relevance_score": min(score, 100),
+                    "match_reason": match_reason
+                })
+
+        # Sort by score and return top 3
+        matches.sort(key=lambda x: x["relevance_score"], reverse=True)
+        top_matches = matches[:3]
+
+        return {
+            "matches": top_matches,
+            "query": query,
+            "demo_mode": True,
+            "message": "Demo mode: Using simple keyword matching. Add API keys for AI-powered semantic search."
+        }
 
     prompt = f"""You are a developer matching system. Given a search query and developer profiles, identify the top 3 most relevant developers.
 
@@ -375,7 +462,11 @@ CRITICAL: Return ONLY valid JSON array. DO NOT include markdown, explanations, o
             if full_profile:
                 result.append({**full_profile, **match})
 
-        return {"matches": result, "query": query}
+        return {
+            "matches": result,
+            "query": query,
+            "demo_mode": False
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search error: {str(e)}")
@@ -387,9 +478,22 @@ async def root():
     return {
         "status": "running",
         "message": "GitHub Developer Profiler API",
+        "demo_mode": DEMO_MODE,
         "endpoints": {
             "POST /analyze": "Analyze GitHub repositories",
             "GET /profiles": "Get all profiles",
-            "GET /search?query=<query>": "Search for developers"
+            "GET /search?query=<query>": "Search for developers",
+            "GET /mode": "Check if running in demo mode"
         }
+    }
+
+
+@app.get("/mode")
+async def get_mode():
+    """Check if API is running in demo mode"""
+    return {
+        "demo_mode": DEMO_MODE,
+        "message": "Using sample data" if DEMO_MODE else "Using real GitHub and Claude APIs",
+        "has_github_token": bool(GITHUB_TOKEN),
+        "has_anthropic_key": bool(ANTHROPIC_KEY)
     }

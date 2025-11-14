@@ -14,8 +14,24 @@ function App() {
   const [profiles, setProfiles] = useState([]);
   const [status, setStatus] = useState({ message: '', type: '' });
   const [loading, setLoading] = useState(false);
+  const [demoMode, setDemoMode] = useState(null);
 
   const API_BASE = 'http://localhost:8000';
+
+  // Check demo mode on component mount
+  useState(() => {
+    const checkDemoMode = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/mode`);
+        const data = await response.json();
+        setDemoMode(data.demo_mode);
+      } catch (error) {
+        // Backend not running - will be in demo mode when it starts
+        setDemoMode(true);
+      }
+    };
+    checkDemoMode();
+  }, []);
 
   const showStatus = (message, type) => {
     setStatus({ message, type });
@@ -47,7 +63,11 @@ function App() {
       }
 
       const data = await response.json();
-      showStatus(`Success! Generated ${data.profiles_generated} developer profile${data.profiles_generated !== 1 ? 's' : ''}`, 'success');
+      setDemoMode(data.demo_mode);
+      const statusMsg = data.demo_mode
+        ? `Demo: Showing ${data.profiles_generated} sample profiles. Add API keys for real analysis.`
+        : `Success! Generated ${data.profiles_generated} developer profile${data.profiles_generated !== 1 ? 's' : ''}`;
+      showStatus(statusMsg, data.demo_mode ? 'info' : 'success');
       setProfiles(data.profiles);
     } catch (error) {
       showStatus(`Error: ${error.message}. Make sure backend is running on port 8000.`, 'error');
@@ -68,9 +88,13 @@ function App() {
     try {
       const response = await fetch(`${API_BASE}/search?query=${encodeURIComponent(searchQuery)}`);
       const data = await response.json();
+      setDemoMode(data.demo_mode);
 
       if (data.matches && data.matches.length > 0) {
-        showStatus(`Found ${data.matches.length} matching developer${data.matches.length !== 1 ? 's' : ''}`, 'success');
+        const statusMsg = data.demo_mode
+          ? `Demo: Found ${data.matches.length} match${data.matches.length !== 1 ? 'es' : ''} (keyword-based)`
+          : `Found ${data.matches.length} matching developer${data.matches.length !== 1 ? 's' : ''}`;
+        showStatus(statusMsg, data.demo_mode ? 'info' : 'success');
         setProfiles(data.matches);
       } else {
         showStatus('No matches found. Try a different query.', 'error');
@@ -85,8 +109,12 @@ function App() {
     try {
       const response = await fetch(`${API_BASE}/profiles`);
       const data = await response.json();
+      setDemoMode(data.demo_mode);
       if (data.profiles && data.profiles.length > 0) {
         setProfiles(data.profiles);
+        if (data.demo_mode) {
+          showStatus('Loaded sample profiles (Demo Mode)', 'info');
+        }
       }
     } catch (error) {
       console.log('No existing profiles or server not running');
@@ -161,6 +189,13 @@ function App() {
             <p className="profiler-desc">
               AI-powered developer profiles from repository analysis. Find the right expertise for your project.
             </p>
+            {demoMode && (
+              <div className="demo-badge">
+                <span className="demo-icon">🎭</span>
+                <span>Demo Mode - Using Sample Data</span>
+                <span className="demo-hint">Add API keys to analyze real repositories</span>
+              </div>
+            )}
           </div>
 
           <div className="profiler-content">

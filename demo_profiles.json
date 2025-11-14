@@ -1,0 +1,152 @@
+[
+  {
+    "github_username": "sarah-ml-expert",
+    "name": "Sarah Chen",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
+    "total_commits": 147,
+    "primary_languages": ["Python", "JavaScript", "TypeScript"],
+    "repo_analyzed": "ml-recommendation-engine",
+    "expertise_areas": [
+      "Machine Learning",
+      "Data Pipeline Architecture",
+      "API Development",
+      "Model Deployment",
+      "Neural Networks"
+    ],
+    "frameworks": ["TensorFlow", "PyTorch", "FastAPI", "React"],
+    "work_style": "methodical test-driven",
+    "commit_pattern": "Makes frequent, small commits with detailed documentation and comprehensive tests",
+    "ai_summary": "Sarah is a machine learning engineer with deep expertise in building production ML systems. Her work shows strong focus on code quality, extensive testing, and clear documentation. She excels at bridging the gap between research and production deployment.",
+    "best_for": [
+      "Architecting ML pipelines and model serving infrastructure",
+      "Code review for ML/AI projects",
+      "Mentoring on MLOps best practices",
+      "Building scalable data processing systems"
+    ]
+  },
+  {
+    "github_username": "alex-frontend-guru",
+    "name": "Alex Rodriguez",
+    "avatar_url": "https://avatars.githubusercontent.com/u/2?v=4",
+    "total_commits": 203,
+    "primary_languages": ["TypeScript", "JavaScript", "React"],
+    "repo_analyzed": "design-system-library",
+    "expertise_areas": [
+      "Component Architecture",
+      "UI/UX Implementation",
+      "Performance Optimization",
+      "Accessibility",
+      "Design Systems"
+    ],
+    "frameworks": ["React", "Next.js", "Tailwind CSS", "Storybook"],
+    "work_style": "rapid iterative prototyping",
+    "commit_pattern": "Commits frequently with visual examples and interactive demos in commit messages",
+    "ai_summary": "Alex specializes in building scalable frontend architectures and design systems. Known for pixel-perfect implementations and strong accessibility practices. Creates highly reusable component libraries with excellent developer experience.",
+    "best_for": [
+      "Building and maintaining design systems",
+      "React architecture and component design",
+      "Accessibility compliance and WCAG standards",
+      "Performance optimization for web applications"
+    ]
+  },
+  {
+    "github_username": "jordan-fullstack",
+    "name": "Jordan Kim",
+    "avatar_url": "https://avatars.githubusercontent.com/u/3?v=4",
+    "total_commits": 312,
+    "primary_languages": ["Python", "TypeScript", "Go"],
+    "repo_analyzed": "microservices-platform",
+    "expertise_areas": [
+      "Distributed Systems",
+      "Backend Architecture",
+      "Database Design",
+      "DevOps",
+      "API Design"
+    ],
+    "frameworks": ["FastAPI", "PostgreSQL", "Docker", "Kubernetes"],
+    "work_style": "pragmatic problem-solver",
+    "commit_pattern": "Well-structured commits that often include both frontend and backend changes with integration tests",
+    "ai_summary": "Jordan is a full-stack engineer with expertise in building scalable distributed systems. Strong focus on system design, database optimization, and clean API design. Known for writing maintainable code and comprehensive documentation.",
+    "best_for": [
+      "System architecture and microservices design",
+      "Database schema design and optimization",
+      "Building RESTful and GraphQL APIs",
+      "Docker and Kubernetes deployment strategies"
+    ]
+  },
+  {
+    "github_username": "priya-security-pro",
+    "name": "Priya Sharma",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4?v=4",
+    "total_commits": 89,
+    "primary_languages": ["Python", "Go", "Shell"],
+    "repo_analyzed": "security-audit-toolkit",
+    "expertise_areas": [
+      "Security Engineering",
+      "Authentication Systems",
+      "Cryptography",
+      "Penetration Testing",
+      "Infrastructure Security"
+    ],
+    "frameworks": ["OAuth", "JWT", "Terraform", "Vault"],
+    "work_style": "security-first implementation",
+    "commit_pattern": "Detailed commits with security considerations, threat models, and mitigation strategies documented",
+    "ai_summary": "Priya is a security engineer focused on building secure authentication systems and infrastructure. Expertise in implementing zero-trust architectures and secure coding practices. Strong background in cryptography and threat modeling.",
+    "best_for": [
+      "Security architecture review and threat modeling",
+      "Implementing authentication and authorization systems",
+      "Security audits and penetration testing",
+      "Infrastructure security and compliance"
+    ]
+  },
+  {
+    "github_username": "marcus-devops-ninja",
+    "name": "Marcus Johnson",
+    "avatar_url": "https://avatars.githubusercontent.com/u/5?v=4",
+    "total_commits": 156,
+    "primary_languages": ["Python", "Shell", "YAML"],
+    "repo_analyzed": "ci-cd-automation",
+    "expertise_areas": [
+      "CI/CD Pipelines",
+      "Infrastructure as Code",
+      "Cloud Architecture",
+      "Monitoring & Observability",
+      "Container Orchestration"
+    ],
+    "frameworks": ["GitHub Actions", "Terraform", "Docker", "Prometheus"],
+    "work_style": "automation-focused maintainer",
+    "commit_pattern": "Systematic commits improving infrastructure reliability with detailed runbooks and automation scripts",
+    "ai_summary": "Marcus specializes in DevOps and infrastructure automation. Expert at building robust CI/CD pipelines and maintaining highly available systems. Strong focus on observability, monitoring, and incident response automation.",
+    "best_for": [
+      "Setting up CI/CD pipelines and deployment automation",
+      "Infrastructure as Code with Terraform",
+      "Kubernetes cluster management and optimization",
+      "Monitoring, logging, and alerting systems"
+    ]
+  },
+  {
+    "github_username": "emma-data-scientist",
+    "name": "Emma Watson",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6?v=4",
+    "total_commits": 124,
+    "primary_languages": ["Python", "SQL", "Jupyter"],
+    "repo_analyzed": "analytics-dashboard",
+    "expertise_areas": [
+      "Data Analysis",
+      "Statistical Modeling",
+      "Data Visualization",
+      "ETL Pipelines",
+      "Business Intelligence"
+    ],
+    "frameworks": ["Pandas", "Matplotlib", "Scikit-learn", "dbt"],
+    "work_style": "analytical documentation-focused",
+    "commit_pattern": "Commits often include Jupyter notebooks with clear explanations, visualizations, and statistical analysis",
+    "ai_summary": "Emma is a data scientist who excels at turning complex data into actionable insights. Strong background in statistical analysis and building data pipelines. Known for creating clear visualizations and comprehensive documentation of analytical approaches.",
+    "best_for": [
+      "Exploratory data analysis and statistical modeling",
+      "Building data visualization dashboards",
+      "ETL pipeline design and implementation",
+      "A/B testing and experimental design"
+    ]
+  }
+]
