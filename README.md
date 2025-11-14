@@ -44,15 +44,17 @@ Runs the app in development mode at [http://localhost:3000](http://localhost:300
 
 ### Backend Setup (GitHub Profiler Feature)
 
+> **🎭 Demo Mode Available!** The profiler works without API keys using sample data. Perfect for demos and testing. Simply skip step 2 to run in demo mode.
+
 #### 1. Install Python Dependencies
 
 ```bash
 pip3 install -r requirements.txt
 ```
 
-#### 2. Configure API Keys
+#### 2. Configure API Keys (Optional for Demo Mode)
 
-Create a `.env` file in the project root:
+For real GitHub analysis, create a `.env` file in the project root:
 
 ```bash
 cp .env.example .env
@@ -69,6 +71,8 @@ ANTHROPIC_API_KEY=sk-ant-your_anthropic_api_key
 - **GitHub Token**: https://github.com/settings/tokens (create a personal access token)
 - **Anthropic API Key**: https://console.anthropic.com/settings/keys
 
+**Note:** If you skip this step, the backend runs in **Demo Mode** with 6 sample developer profiles.
+
 #### 3. Run the Backend Server
 
 ```bash
@@ -77,16 +81,29 @@ python3 -m uvicorn backend:app --reload
 
 Server will start at: http://localhost:8000
 
+The server will display:
+- ⚠️ "Running in DEMO MODE" if no API keys found
+- ✓ Normal startup if API keys are configured
+
 #### 4. Use the Profiler
 
 With both frontend (port 3000) and backend (port 8000) running:
-1. Navigate to the "Profiler" section in the app
-2. Paste GitHub repository URLs (one per line)
-3. Click "Generate Profiles" and wait 30-90 seconds
-4. Search profiles using natural language queries like:
-   - "Who knows about machine learning?"
-   - "Find someone good at frontend work"
-   - "Who writes comprehensive tests?"
+
+**Demo Mode:**
+- Click "Generate Profiles" to see 6 sample developers
+- Search works with keyword matching
+- Demo badge visible at top of Profiler section
+
+**Live Mode (with API keys):**
+1. Paste GitHub repository URLs (one per line)
+2. Click "Generate Profiles" and wait 30-90 seconds
+3. AI analyzes commits, languages, and work patterns
+4. Search uses Claude for semantic matching
+
+**Sample Queries:**
+- "Who knows about machine learning?"
+- "Find someone good at frontend work"
+- "Who writes comprehensive tests?"
 
 ### Build
 
