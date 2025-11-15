@@ -47,6 +47,7 @@ PROFILES_FILE = "profiles.json"
 DEMO_PROFILES_FILE = "demo_profiles.json"
 PERSONAL_FILE = "personal.json"
 PROJECTS_FILE = "projects.json"
+MATCH_OUTPUT_FILE = "output.json"
 
 
 def extract_repo_name(url: str) -> str:
@@ -322,6 +323,23 @@ def load_personas() -> List[dict]:
 def load_projects() -> List[dict]:
     """Return projects from projects.json"""
     return load_json_records(PROJECTS_FILE, "projects")
+
+
+def load_match_results():
+    """Return last saved match payload from disk, if available."""
+    try:
+        with open(MATCH_OUTPUT_FILE, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=500, detail=f"Error parsing {MATCH_OUTPUT_FILE}: {exc}")
+
+
+def save_match_results(payload: dict):
+    """Persist match payload for UI consumption."""
+    with open(MATCH_OUTPUT_FILE, 'w') as f:
+        json.dump(payload, f, indent=2)
 
 
 def summarize_persona(persona: dict) -> dict:
@@ -712,15 +730,20 @@ async def match_endpoint():
         raise HTTPException(status_code=400, detail="No projects found in projects.json")
 
     matches = match_personas_to_projects(personas, projects)
+    generated_at = datetime.utcnow().isoformat() + "Z"
 
-    return {
+    payload = {
         "success": True,
         "persona_count": len(personas),
         "project_count": len(projects),
         "matches": matches,
         "using_claude": not DEMO_MODE,
-        "demo_mode": DEMO_MODE
+        "demo_mode": DEMO_MODE,
+        "generated_at": generated_at
     }
+
+    save_match_results(payload)
+    return payload
 
 
 @app.get("/")
@@ -748,3 +771,32 @@ async def get_mode():
         "has_github_token": bool(GITHUB_TOKEN),
         "has_anthropic_key": bool(ANTHROPIC_KEY)
     }
+
+
+@app.get("/personas")
+async def get_personas():
+    """Expose personas for the UI."""
+    personas = load_personas()
+    return {
+        "personas": personas,
+        "count": len(personas)
+    }
+
+
+@app.get("/projects")
+async def get_projects():
+    """Expose projects for the UI."""
+    projects = load_projects()
+    return {
+        "projects": projects,
+        "count": len(projects)
+    }
+
+
+@app.get("/matches")
+async def get_saved_matches():
+    """Return the most recent match payload saved to disk."""
+    saved = load_match_results()
+    if not saved:
+        raise HTTPException(status_code=404, detail="No saved match results. Run POST /match first.")
+    return saved

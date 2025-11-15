@@ -1,354 +1,455 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const navItems = [
-  { label: 'Overview', href: '#overview' },
-  { label: 'Program', href: '#program' },
-  { label: 'Profiler', href: '#profiler' },
-  { label: 'Get Involved', href: '#interest' },
+const curatedRepos = [
+  'https://github.com/fastai/fastai',
+  'https://github.com/sindresorhus/awesome',
+  'https://github.com/twbs/bootstrap'
 ];
 
+const defaultMatchMeta = {
+  usingClaude: false,
+  demoMode: false,
+  personaCount: 0,
+  projectCount: 0,
+  generatedAt: null,
+};
+
 function App() {
-  const [repos, setRepos] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [profiles, setProfiles] = useState([]);
-  const [status, setStatus] = useState({ message: '', type: '' });
-  const [loading, setLoading] = useState(false);
   const [demoMode, setDemoMode] = useState(null);
+  const [personas, setPersonas] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [matchResults, setMatchResults] = useState([]);
+  const [matchMeta, setMatchMeta] = useState(defaultMatchMeta);
+  const [personasLoading, setPersonasLoading] = useState(false);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+  const [matchesLoading, setMatchesLoading] = useState(false);
+  const [personasError, setPersonasError] = useState('');
+  const [projectsError, setProjectsError] = useState('');
+  const [matchesError, setMatchesError] = useState('');
+  const [matchAlert, setMatchAlert] = useState({ message: '', tone: '' });
+  const [repoStatus, setRepoStatus] = useState({ message: '', type: '' });
 
   const API_BASE = 'http://localhost:8000';
 
-  // Check demo mode on component mount
-  useState(() => {
-    const checkDemoMode = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/mode`);
-        const data = await response.json();
-        setDemoMode(data.demo_mode);
-      } catch (error) {
-        // Backend not running - will be in demo mode when it starts
-        setDemoMode(true);
-      }
-    };
-    checkDemoMode();
-  }, []);
-
-  const showStatus = (message, type) => {
-    setStatus({ message, type });
-    if (type === 'success') {
-      setTimeout(() => setStatus({ message: '', type: '' }), 5000);
+  const checkDemoMode = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/mode`);
+      const data = await response.json();
+      setDemoMode(data.demo_mode);
+    } catch (error) {
+      setDemoMode(true);
     }
   };
 
-  const analyzeRepos = async () => {
-    const repoList = repos.split('\n').filter(r => r.trim());
-
-    if (repoList.length === 0) {
-      showStatus('Please enter at least one repository URL', 'error');
-      return;
+  const fetchPersonas = async () => {
+    setPersonasLoading(true);
+    setPersonasError('');
+    try {
+      const response = await fetch(`${API_BASE}/personas`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail || 'Unable to load personas');
+      }
+      setPersonas(data.personas || []);
+    } catch (error) {
+      setPersonasError(error.message);
+      setPersonas([]);
+    } finally {
+      setPersonasLoading(false);
     }
+  };
 
-    setLoading(true);
-    showStatus(`Analyzing ${repoList.length} repositor${repoList.length > 1 ? 'ies' : 'y'}... This may take 30-90 seconds`, 'loading');
+  const fetchProjects = async () => {
+    setProjectsLoading(true);
+    setProjectsError('');
+    try {
+      const response = await fetch(`${API_BASE}/projects`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail || 'Unable to load projects');
+      }
+      setProjects(data.projects || []);
+    } catch (error) {
+      setProjectsError(error.message);
+      setProjects([]);
+    } finally {
+      setProjectsLoading(false);
+    }
+  };
 
+  const fetchSavedMatches = async (showMessage = false) => {
+    setMatchesLoading(true);
+    setMatchesError('');
+    if (showMessage) {
+      setMatchAlert({ message: 'Refreshing saved results...', tone: 'info' });
+    }
+    try {
+      const response = await fetch(`${API_BASE}/matches`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (response.status === 404) {
+          setMatchResults([]);
+          setMatchMeta({ ...defaultMatchMeta });
+          if (showMessage) {
+            setMatchAlert({
+              message: 'No saved matches yet. Run the matcher to generate recommendations.',
+              tone: 'info',
+            });
+          }
+          return;
+        }
+        throw new Error(data.detail || 'Unable to load saved matches');
+      }
+
+      setMatchResults(data.matches || []);
+      setMatchMeta({
+        usingClaude: Boolean(data.using_claude),
+        demoMode: Boolean(data.demo_mode),
+        personaCount: data.persona_count || 0,
+        projectCount: data.project_count || 0,
+        generatedAt: data.generated_at || null,
+      });
+      if (showMessage) {
+        setMatchAlert({ message: 'Loaded latest saved matches.', tone: 'success' });
+      }
+    } catch (error) {
+      setMatchesError(error.message);
+      setMatchResults([]);
+      setMatchMeta({ ...defaultMatchMeta });
+      setMatchAlert({ message: '', tone: '' });
+    } finally {
+      setMatchesLoading(false);
+    }
+  };
+
+  const runMatch = async () => {
+    setMatchesLoading(true);
+    setMatchesError('');
+    setMatchAlert({ message: 'Contacting backend for fresh recommendations...', tone: 'info' });
+    try {
+      const response = await fetch(`${API_BASE}/match`, { method: 'POST' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail || 'Unable to generate matches');
+      }
+
+      setMatchResults(data.matches || []);
+      setMatchMeta({
+        usingClaude: Boolean(data.using_claude),
+        demoMode: Boolean(data.demo_mode),
+        personaCount: data.persona_count || 0,
+        projectCount: data.project_count || 0,
+        generatedAt: data.generated_at || null,
+      });
+      setMatchAlert({
+        message: data.using_claude
+          ? 'Claude-generated matches ready!'
+          : 'Demo recommendations refreshed.',
+        tone: 'success',
+      });
+    } catch (error) {
+      setMatchesError(error.message);
+      setMatchAlert({ message: '', tone: '' });
+    } finally {
+      setMatchesLoading(false);
+    }
+  };
+
+  const analyzeCuratedRepos = async () => {
+    setRepoStatus({ message: 'Analyzing curated repositories...', type: 'loading' });
     try {
       const response = await fetch(`${API_BASE}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(repoList)
+        body: JSON.stringify(curatedRepos),
       });
-
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error('Analysis failed');
+        throw new Error(data.detail || 'Analysis failed');
       }
-
-      const data = await response.json();
       setDemoMode(data.demo_mode);
-      const statusMsg = data.demo_mode
-        ? `Demo: Showing ${data.profiles_generated} sample profiles. Add API keys for real analysis.`
-        : `Success! Generated ${data.profiles_generated} developer profile${data.profiles_generated !== 1 ? 's' : ''}`;
-      showStatus(statusMsg, data.demo_mode ? 'info' : 'success');
-      setProfiles(data.profiles);
+      setRepoStatus({
+        message: data.demo_mode
+          ? `Demo data: showing ${data.profiles_generated} profile(s).`
+          : `Success! Generated ${data.profiles_generated} developer profile(s).`,
+        type: data.demo_mode ? 'info' : 'success',
+      });
     } catch (error) {
-      showStatus(`Error: ${error.message}. Make sure backend is running on port 8000.`, 'error');
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
+      setRepoStatus({ message: error.message, type: 'error' });
     }
   };
 
-  const searchDevelopers = async () => {
-    if (!searchQuery.trim()) {
-      showStatus('Please enter a search query', 'error');
-      return;
-    }
-
-    showStatus('Searching...', 'loading');
-
-    try {
-      const response = await fetch(`${API_BASE}/search?query=${encodeURIComponent(searchQuery)}`);
-      const data = await response.json();
-      setDemoMode(data.demo_mode);
-
-      if (data.matches && data.matches.length > 0) {
-        const statusMsg = data.demo_mode
-          ? `Demo: Found ${data.matches.length} match${data.matches.length !== 1 ? 'es' : ''} (keyword-based)`
-          : `Found ${data.matches.length} matching developer${data.matches.length !== 1 ? 's' : ''}`;
-        showStatus(statusMsg, data.demo_mode ? 'info' : 'success');
-        setProfiles(data.matches);
-      } else {
-        showStatus('No matches found. Try a different query.', 'error');
-      }
-    } catch (error) {
-      showStatus(`Search error: ${error.message}`, 'error');
-      console.error('Error:', error);
-    }
-  };
-
-  const loadExistingProfiles = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/profiles`);
-      const data = await response.json();
-      setDemoMode(data.demo_mode);
-      if (data.profiles && data.profiles.length > 0) {
-        setProfiles(data.profiles);
-        if (data.demo_mode) {
-          showStatus('Loaded sample profiles (Demo Mode)', 'info');
-        }
-      }
-    } catch (error) {
-      console.log('No existing profiles or server not running');
-    }
-  };
+  useEffect(() => {
+    checkDemoMode();
+    fetchPersonas();
+    fetchProjects();
+    fetchSavedMatches();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="App">
-      <nav className="nav">
-        <div className="brand">
-          <span className="brand-pill">PXAE</span>
-          <span>Penn × Anthropic</span>
+      <header className="app-header">
+        <div>
+          <p className="eyebrow">Penn × Anthropic</p>
+          <h1>Matching Control Center</h1>
+          <p className="header-desc">
+            Monitor personas, project briefs, and Claude's pairing output from a single dashboard.
+          </p>
         </div>
-        <ul className="nav-links">
-          {navItems.map((item) => (
-            <li key={item.label}>
-              <a href={item.href}>{item.label}</a>
-            </li>
-          ))}
-        </ul>
-        <a className="cta-link" href="#interest">
-          Join the list
-        </a>
-      </nav>
+        <div className="header-status">
+          <span className={`demo-flag ${demoMode ? 'on' : 'off'}`}>
+            {demoMode ? 'Demo Mode' : 'API Mode'}
+          </span>
+        </div>
+      </header>
 
       <main>
-        <section id="overview" className="hero">
-          <p className="eyebrow">Penn x Anthropic</p>
-          <h1>Empowering ethical AI builders on campus</h1>
-          <p className="lede">
-            We are a student-led initiative helping the Penn community explore responsible AI
-            development through hands-on projects, mentorship, and access to Anthropic experts.
-          </p>
-          <div className="hero-actions">
-            <a className="cta-link primary" href="#program">
-              Explore the program
-            </a>
-            <a className="cta-link secondary" href="#interest">
-              Share interest
-            </a>
+        <section className="curated-section">
+          <div className="curated-info">
+            <h2>Curated GitHub Repositories</h2>
+            <p>
+              Kick off profiling for our starter set of repositories. The backend will contact GitHub and store
+              developer profiles that fuel downstream matching.
+            </p>
           </div>
+          <ul className="repo-list">
+            {curatedRepos.map((repo) => (
+              <li key={repo}>
+                <span className="repo-bullet">↳</span>
+                <a href={repo} target="_blank" rel="noopener noreferrer">
+                  {repo}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <button className="primary-btn" onClick={analyzeCuratedRepos}>
+            Analyze curated repositories
+          </button>
+          {repoStatus.message && (
+            <div className={`repo-status ${repoStatus.type}`}>{repoStatus.message}</div>
+          )}
         </section>
 
-        <section id="program" className="info-grid">
-          <article className="info-card">
-            <h2>Workshops</h2>
-            <p>
-              Weekly deep dives into frontier models, alignment, safety strategy, and practical
-              tooling. Sessions balance technical skill building with facilitated discussions.
+        <section className="matching-section">
+          <div className="matching-header">
+            <h2>Personas, Projects & Matches</h2>
+            <p className="matching-desc">
+              Everything shown here is read straight from <code>personal.json</code>, <code>projects.json</code>, and
+              the last <code>/match</code> response saved to <code>output.json</code>.
             </p>
-          </article>
-          <article className="info-card">
-            <h2>Mentorship</h2>
-            <p>
-              Small-group circles pair students with Anthropic researchers and alumni to review
-              ideas, get career advice, and workshop project milestones.
-            </p>
-          </article>
-          <article className="info-card">
-            <h2>Impact Projects</h2>
-            <p>
-              Interdisciplinary teams prototype solutions for civic partners, producing case studies
-              that showcase how safe AI systems can solve real problems.
-            </p>
-          </article>
-        </section>
-
-        <section id="profiler" className="profiler-section">
-          <div className="profiler-header">
-            <p className="eyebrow">Developer Discovery</p>
-            <h2>GitHub Developer Profiler</h2>
-            <p className="profiler-desc">
-              AI-powered developer profiles from repository analysis. Find the right expertise for your project.
-            </p>
-            {demoMode && (
-              <div className="demo-badge">
-                <span className="demo-icon">🎭</span>
-                <span>Demo Mode - Using Sample Data</span>
-                <span className="demo-hint">Add API keys to analyze real repositories</span>
-              </div>
-            )}
           </div>
 
-          <div className="profiler-content">
-            <div className="profiler-card">
-              <div className="profiler-card-header">
-                <span className="step-badge">1</span>
-                <h3>Analyze Repositories</h3>
-              </div>
-              <textarea
-                value={repos}
-                onChange={(e) => setRepos(e.target.value)}
-                placeholder="Paste GitHub repository URLs (one per line)&#10;&#10;Example:&#10;https://github.com/fastapi/fastapi&#10;https://github.com/anthropics/anthropic-sdk-python"
-                className="repo-input"
-                rows="6"
-              />
-              <button
-                onClick={analyzeRepos}
-                disabled={loading}
-                className="profiler-btn primary"
-              >
-                {loading ? '⏳ Analyzing...' : '🔍 Generate Profiles'}
-              </button>
-              {status.message && (
-                <div className={`status-message ${status.type}`}>
-                  {status.message}
-                </div>
+          <div className="matching-actions">
+            <div className="matching-meta">
+              <span>👥 Personas: {personas.length}</span>
+              <span>🧩 Projects: {projects.length}</span>
+              {matchMeta.generatedAt && (
+                <span>🕒 Last match: {new Date(matchMeta.generatedAt).toLocaleString()}</span>
               )}
+              <span className={`claude-chip ${matchMeta.usingClaude ? 'on' : 'off'}`}>
+                {matchMeta.usingClaude ? 'Claude AI' : 'Demo logic'}
+              </span>
             </div>
+            <div className="matching-buttons">
+              <button
+                className="ghost-btn"
+                onClick={() => fetchSavedMatches(true)}
+                disabled={matchesLoading}
+              >
+                {matchesLoading ? 'Refreshing…' : 'Reload saved matches'}
+              </button>
+              <button className="primary-btn" onClick={runMatch} disabled={matchesLoading}>
+                {matchesLoading ? 'Matching…' : 'Run match with Claude'}
+              </button>
+            </div>
+          </div>
 
-            <div className="profiler-card">
-              <div className="profiler-card-header">
-                <span className="step-badge">2</span>
-                <h3>Search Developers</h3>
-              </div>
-              <div className="search-container">
-                <input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && searchDevelopers()}
-                  placeholder="Who can help with machine learning? Who writes good tests? Who's a React expert?"
-                  className="search-input"
-                />
-                <button onClick={searchDevelopers} className="profiler-btn secondary">
-                  Search
+          {matchAlert.message && (
+            <div className={`match-alert ${matchAlert.tone}`}>{matchAlert.message}</div>
+          )}
+          {matchesError && <div className="match-alert error">{matchesError}</div>}
+
+          <div className="matching-grid">
+            <article className="data-panel">
+              <div className="panel-header">
+                <div>
+                  <h3>Personas</h3>
+                  <p className="panel-subtitle">Loaded from personal.json</p>
+                </div>
+                <button
+                  className="refresh-btn"
+                  onClick={fetchPersonas}
+                  disabled={personasLoading}
+                  aria-label="Refresh personas"
+                >
+                  ↻
                 </button>
               </div>
-              <button onClick={loadExistingProfiles} className="profiler-btn tertiary">
-                Load All Profiles
-              </button>
-            </div>
-          </div>
+              {personasLoading ? (
+                <p className="data-status">Loading personas…</p>
+              ) : personasError ? (
+                <p className="data-status error">{personasError}</p>
+              ) : (
+                <div className="personas-list">
+                  {personas.map((persona) => {
+                    const targetRoles = persona?.application?.target_roles || [];
+                    const skills = persona?.resume?.skills || [];
+                    const interests =
+                      persona?.survey?.responses?.find((resp) =>
+                        resp.question?.toLowerCase().includes('projects')
+                      )?.answer || '';
 
-          {profiles.length > 0 && (
-            <div className="profiles-grid">
-              {profiles.map((profile) => (
-                <div key={profile.github_username} className="profile-card">
-                  <div className="profile-header">
-                    <img
-                      src={profile.avatar_url}
-                      alt={profile.github_username}
-                      className="profile-avatar"
-                    />
-                    <div className="profile-info">
-                      <h4>{profile.name || profile.github_username}</h4>
-                      <a
-                        href={`https://github.com/${profile.github_username}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="profile-link"
-                      >
-                        @{profile.github_username}
-                      </a>
-                    </div>
-                  </div>
-
-                  {profile.match_reason && (
-                    <div className="match-reason">
-                      <strong>Match:</strong> {profile.match_reason}
-                    </div>
-                  )}
-
-                  <p className="profile-summary">{profile.ai_summary}</p>
-
-                  <div className="profile-section">
-                    <span className="profile-label">Languages</span>
-                    <div className="tag-container">
-                      {profile.primary_languages.map((lang) => (
-                        <span key={lang} className="tag language-tag">
-                          {lang}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="profile-section">
-                    <span className="profile-label">Expertise</span>
-                    <div className="expertise-text">
-                      {profile.expertise_areas.slice(0, 3).join(' • ')}
-                    </div>
-                  </div>
-
-                  {profile.best_for && (
-                    <div className="profile-section">
-                      <span className="profile-label">Best For</span>
-                      <ul className="best-for-list">
-                        {profile.best_for.slice(0, 3).map((item, idx) => (
-                          <li key={idx}>
-                            <span className="check-icon">✓</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  <div className="profile-footer">
-                    <span>📊 {profile.total_commits} commits</span>
-                    <span className="work-style">{profile.work_style}</span>
-                  </div>
+                    return (
+                      <div key={persona.id} className="persona-card">
+                        <div className="card-title">
+                          <h4>{persona.full_name}</h4>
+                          {persona?.application?.role_seniority && (
+                            <span className="mini-pill">{persona.application.role_seniority}</span>
+                          )}
+                        </div>
+                        {persona?.resume?.headline && (
+                          <p className="persona-headline">{persona.resume.headline}</p>
+                        )}
+                        {targetRoles.length > 0 && (
+                          <div className="tag-row">
+                            {targetRoles.slice(0, 3).map((role) => (
+                              <span key={role} className="tag-chip">
+                                {role}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {skills.length > 0 && (
+                          <div className="skill-grid">
+                            {skills.slice(0, 4).map((skill) => (
+                              <span key={skill} className="skill-pill">
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {interests && <p className="persona-quote">“{interests}”</p>}
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-          )}
+              )}
+            </article>
 
-          {profiles.length === 0 && !loading && (
-            <div className="empty-state">
-              <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-              </svg>
-              <p>No profiles yet. Start by analyzing a repository!</p>
-            </div>
-          )}
-        </section>
+            <article className="data-panel">
+              <div className="panel-header">
+                <div>
+                  <h3>Projects</h3>
+                  <p className="panel-subtitle">Loaded from projects.json</p>
+                </div>
+                <button
+                  className="refresh-btn"
+                  onClick={fetchProjects}
+                  disabled={projectsLoading}
+                  aria-label="Refresh projects"
+                >
+                  ↻
+                </button>
+              </div>
+              {projectsLoading ? (
+                <p className="data-status">Loading projects…</p>
+              ) : projectsError ? (
+                <p className="data-status error">{projectsError}</p>
+              ) : (
+                <div className="projects-list">
+                  {projects.map((project) => {
+                    const features = project?.core_features || [];
+                    const stack = project?.architecture_stack || {};
 
-        <section id="interest" className="info-card interest-card">
-          <h2>Stay in the loop</h2>
-          <p>
-            We&apos;re finalizing the full semester roadmap. Leave your info and we&apos;ll send
-            updates on kickoff dates, speaker announcements, and open application windows.
-          </p>
-          <ul>
-            <li>Monthly digest with speaker reveals</li>
-            <li>Early invitations to build weekends</li>
-            <li>Priority mentorship matching</li>
-          </ul>
-          <a className="cta-link primary" href="mailto:pxae@penn.edu">
-            Email pxae@penn.edu
-          </a>
+                    return (
+                      <div key={project.project_name} className="project-card">
+                        <h4>{project.project_name}</h4>
+                        <p className="project-description">{project.Description}</p>
+                        {features.length > 0 && (
+                          <div className="tag-row">
+                            {features.slice(0, 3).map((feature) => (
+                              <span key={feature} className="tag-chip secondary">
+                                {feature}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {Object.keys(stack).length > 0 && (
+                          <div className="stack-grid">
+                            {Object.entries(stack).slice(0, 3).map(([layer, value]) => {
+                              const items = Array.isArray(value) ? value.join(', ') : JSON.stringify(value);
+                              return (
+                                <div key={layer} className="stack-chip">
+                                  <span className="stack-label">{layer}</span>
+                                  <span className="stack-value">{items}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </article>
+
+            <article className="data-panel">
+              <div className="panel-header">
+                <div>
+                  <h3>Match Output</h3>
+                  <p className="panel-subtitle">Reflects output.json</p>
+                </div>
+                <button
+                  className="refresh-btn"
+                  onClick={() => fetchSavedMatches(true)}
+                  disabled={matchesLoading}
+                  aria-label="Refresh matches"
+                >
+                  ↻
+                </button>
+              </div>
+              {matchesLoading && matchResults.length === 0 ? (
+                <p className="data-status">Waiting for match results…</p>
+              ) : matchResults.length === 0 ? (
+                <p className="data-status">No matches yet. Run the matcher to populate this panel.</p>
+              ) : (
+                <div className="matches-list">
+                  {matchResults.map((match) => (
+                    <div key={match.persona_id} className="match-card">
+                      <div className="card-title">
+                        <h4>{match.persona_name}</h4>
+                        <span className="mini-pill secondary">{match.persona_id}</span>
+                      </div>
+                      <p className="overall-summary">{match.overall_summary}</p>
+                      {match.assignments && match.assignments.length > 0 && (
+                        <ul className="assignment-list">
+                          {match.assignments.map((assignment, index) => (
+                            <li key={`${assignment.project_name}-${index}`} className="assignment-card">
+                              <div className="assignment-header">
+                                <strong>{assignment.project_name}</strong>
+                                <span className={`confidence-pill ${assignment.confidence?.toLowerCase()}`}>
+                                  {assignment.confidence}
+                                </span>
+                              </div>
+                              <p>{assignment.fit_explanation}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </article>
+          </div>
         </section>
       </main>
 
       <footer>
-        <p>© {new Date().getFullYear()} Penn × Anthropic Emp Matching Initiative</p>
+        <p>© {new Date().getFullYear()} Penn × Anthropic Emp Matching</p>
       </footer>
     </div>
   );
